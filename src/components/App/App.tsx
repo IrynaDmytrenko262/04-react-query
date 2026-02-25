@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
 
 import { useState } from "react";
@@ -22,12 +23,18 @@ export default function App() {
   const [page, setPage] = useState(1);
   const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
 
-const { data, isLoading, isError } = useQuery({
+const { data, isLoading, isError, isSuccess } = useQuery({
   queryKey: ["movies", query, page],
   queryFn: () => fetchMovies(query, page),
   enabled: Boolean(query),
   placeholderData: keepPreviousData,
 });
+  
+  useEffect(() => {
+  if (isSuccess && data?.results.length === 0) {
+    toast("No movies found");
+  }
+}, [data, isSuccess]);
 
   const movies = data?.results ?? [];
   const totalPages = data?.total_pages ?? 0;
@@ -37,9 +44,9 @@ const { data, isLoading, isError } = useQuery({
     setPage(1);
   };
 
-  if (data && movies.length === 0) {
-    toast("No movies found for your request.");
-    }
+  // if (data && movies.length === 0) {
+  //   toast("No movies found for your request.");
+  //   }
 
   return (
     <>
